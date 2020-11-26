@@ -1,5 +1,6 @@
 const messagesRouter = require('express').Router();
 
+const User = require('../models/User');
 const Message = require('../models/Message');
 
 messagesRouter.get('/messages', async (req, res) => {
@@ -10,16 +11,22 @@ messagesRouter.get('/messages', async (req, res) => {
 })
 
 messagesRouter.get('/messages/:id', async (req, res) => {
- 
+    //userWithMessage
     const { id } = req.params;
+    const user = await User.query().select('id','username','email').where('id', '=', id);
     const messages = await Message.query().select('title','message').where('user_id', '=', id);
-    
-    res.json(messages)
+
+    user[0].messages = messages
+
+    res.json(user)
+   
 })
 
 messagesRouter.post('/message/add', async (req, res) => {
     const { id,title,message,user_id } = req.body;
     const addMessage = await Message.query().insert({ id,title,message,user_id });
+
+
 
     res.json(addMessage)
 })
